@@ -21,6 +21,9 @@ def convert(bibtex):
                     title = line[line.find("{") + 1:line.rfind("}")]
                 elif line.startswith("journal"):
                     venue = line[line.find("{") + 1:line.rfind("}")]
+                elif line.startswith("booktitle"):
+                    venue = line[line.find("{") + 1:line.rfind("}")]
+
                 elif line.startswith("volume"):
                     volume = line[line.find("{") + 1:line.rfind("}")]
                 elif line.startswith("number"):
@@ -46,23 +49,27 @@ def convert(bibtex):
                             output_authors.append("{}, {}.".format(last.capitalize(), first.capitalize()[0]))
                 i += 1
 
-            bibitem += "\\bibitem{%s}" % code
+            bibitem += "% Reference <br>   "
+            bibitem += "\\bibitem{%s}<br>   " % code
             if len(output_authors) == 1:
                 bibitem += str(output_authors[0] + " {}. ".format(title))
             else:
-                bibitem += ", ".join(_ for _ in output_authors[:-1]) + " & " + output_authors[-1] + " {}. ".format(title)
+                bibitem += ", ".join(_ for _ in output_authors[:-1]) + " and " + output_authors[-1] + " {}. ".format(title)
             if venue:
                 bibitem +="{{\\em {}}}.".format(" ".join([_.capitalize() for _ in venue.split(' ')]))
-                if volume:
-                    bibitem += " \\textbf{{{}}}".format(volume)
-                if pages:
-                    bibitem += ", {}".format(pages) if number else " pp. {}".format(pages)
                 if year:
-                    bibitem += " ({})".format(year)
+                    bibitem += " {{\\bf {}}}".format(year)
+
+                if volume:
+                    #bibitem += " \\textbf{{{}}}".format(volume)
+                    bibitem += ", {{\\em {}}}".format(volume)
+                if pages:
+                    bibitem += ", {}.".format(pages) if number else ", {}.".format(pages)
+
             if publisher and not venue:
                 bibitem += "({},{})".format(publisher, year)
             if not venue and not publisher and year:
-                bibitem += " ({})".format(year)
+                bibitem += " {{\\bf {}}}".format(year)
             if howpublished:
                 bibitem += ", {}".format(howpublished)
             if note:
